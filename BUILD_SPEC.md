@@ -10,6 +10,9 @@ Stop at the end of every phase, report back, and wait for "continue" before star
 >   treated as the store; hosting on Vercel (keep costs minimal); Upstash free tier for rate limiting; seed products
 >   have no images (UI placeholder); `STORE_URL` added.
 > - Rev 2 (spec change): **Cloudinary replaced by Vercel Blob.**
+> - Rev 3: **Design preview** added before Phase 2 (see below). Brand: Kamshin, luxury perfumes, burgundy `#4B0F1A`,
+>   gold `#D4AF37`, taupe `#D8C6B4`, luxury + minimal, text logo until a real one exists. Product model gains perfume
+>   fields (`sizeMl`, `concentration`, `topNotes`/`heartNotes`/`baseNotes`, `isFeatured`) and Category gains `tagline`.
 
 ## Ground rules (apply to every phase)
 
@@ -85,6 +88,18 @@ Indexes where queries need them (slug, categoryId, isActive, userId, status).
 | `SHIPPING_FLAT_FEE_KOBO` | 6 | Integer kobo |
 | `BLOB_READ_WRITE_TOKEN` | 7 | Vercel Blob store token |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | 8 | Rate limiting |
+
+## Design preview (current state)
+
+A client-facing preview of every store and admin screen, built as the real Next.js pages but running on sample data
+(`lib/demo/*`) so it deploys to Vercel with **no environment variables**.
+
+- Catalogue reads go through `lib/catalog.ts`; its function bodies swap to Prisma in Phase 4 with the same signatures.
+- Cart lives in the browser (`lib/demo/cart-store.ts`) until Phase 5's server cart.
+- Sign-in, checkout/Paystack, admin saves, uploads and role changes show a toast and change nothing.
+- A gold banner on every page says it is a preview.
+- The admin opens at `/admin` on the same site; the `ADMIN_HOST` split and role guards arrive in Phases 2–3.
+- Products have no photos yet: an SVG bottle placeholder in each product's colour is shown instead.
 
 ## Phases
 

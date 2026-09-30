@@ -1,14 +1,21 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
-/* shadcn/ui theme tokens (Nova preset, neutral base colour). */
+/* shadcn/ui theme tokens mapped to the Kamshin brand (light theme only). */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-cormorant);
+  --color-burgundy: var(--burgundy);
+  --color-burgundy-deep: var(--burgundy-deep);
+  --color-gold: var(--gold);
+  --color-gold-text: var(--gold-text);
+  --color-taupe: var(--taupe);
+  --color-ivory: var(--ivory);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -40,62 +47,47 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  --radius: 0.375rem;
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Kamshin brand */
+  --burgundy: #4b0f1a;
+  --burgundy-deep: #360a12;
+  --gold: #d4af37;
+  /* Darker gold for small text on light backgrounds (plain #D4AF37 fails WCAG contrast there). */
+  --gold-text: #8a6a14;
+  --taupe: #d8c6b4;
+  --ivory: #fbf8f4;
+
+  --background: var(--ivory);
+  --foreground: #1f1416;
+  --card: #ffffff;
+  --card-foreground: #1f1416;
+  --popover: #ffffff;
+  --popover-foreground: #1f1416;
+  --primary: var(--burgundy);
+  --primary-foreground: var(--ivory);
+  --secondary: #efe6dc;
+  --secondary-foreground: var(--burgundy);
+  --muted: #f4eee7;
+  --muted-foreground: #6e5f5a;
+  --accent: #f1e8de;
+  --accent-foreground: var(--burgundy);
+  --destructive: #b42318;
+  --success: #2f6b3a;
+  --warning: #9a5b00;
+  --border: #e6dacd;
+  --input: #d9cbbd;
+  --ring: var(--gold);
+
+  /* Admin sidebar: burgundy panel with gold highlights */
+  --sidebar: var(--burgundy);
+  --sidebar-foreground: #f3e9df;
+  --sidebar-primary: var(--gold);
+  --sidebar-primary-foreground: var(--burgundy);
+  --sidebar-accent: #5e1a27;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #6a2331;
+  --sidebar-ring: var(--gold);
 }
 
 @layer base {
@@ -105,6 +97,15 @@
   /* font-sans = Geist (the scaffold's Arial override is removed). */
   body {
     @apply bg-background text-foreground font-sans;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-serif tracking-tight;
+  }
+  ::selection {
+    background: var(--taupe);
+    color: var(--burgundy);
   }
   button:not(:disabled),
   [role="button"]:not(:disabled) {

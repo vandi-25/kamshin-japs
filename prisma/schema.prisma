@@ -59,6 +59,8 @@ model Category {
   id        String    @id @default(cuid())
   name      String
   slug      String    @unique
+  /// Short line shown on collection cards
+  tagline   String?
   createdAt DateTime  @default(now())
   products  Product[]
 }
@@ -73,6 +75,15 @@ model Product {
   /// Integer kobo. Shown struck-through when greater than priceKobo.
   compareAtPriceKobo Int?
   stock              Int            @default(0)
+  /// Perfume attributes (all optional so non-fragrance items still fit)
+  sizeMl             Int?
+  /// e.g. "Eau de Parfum", "Extrait de Parfum"
+  concentration      String?
+  topNotes           String[]       @default([])
+  heartNotes         String[]       @default([])
+  baseNotes          String[]       @default([])
+  /// Featured on the home page
+  isFeatured         Boolean        @default(false)
   isActive           Boolean        @default(true)
   categoryId         String?
   // Restrict: a category cannot be deleted while products still use it.
@@ -86,6 +97,7 @@ model Product {
   @@index([categoryId])
   @@index([isActive, createdAt])
   @@index([isActive, priceKobo])
+  @@index([isActive, isFeatured])
 }
 
 model ProductImage {

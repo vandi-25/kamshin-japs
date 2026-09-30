@@ -31,6 +31,11 @@ export function koboToNairaString(kobo: number): string {
   return `${sign}${naira}.${String(rem).padStart(2, "0")}`;
 }
 
+/** Value for a naira form input: 1250000 → "12500", 123450 → "1234.50". */
+export function koboToNairaInput(kobo: number): string {
+  return koboToNairaString(kobo).replace(/\.00$/, "");
+}
+
 const nairaFormatter = new Intl.NumberFormat("en-NG", {
   style: "currency",
   currency: "NGN",
