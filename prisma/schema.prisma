@@ -1,0 +1,174 @@
+// Prisma 7: connection URLs live in prisma.config.ts (migrations → DIRECT_URL)
+// and in lib/db.ts via the pg driver adapter (runtime → DATABASE_URL, pooled).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         Role      @default(CUSTOMER)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  addresses    Address[]
+  cart         Cart?
+  orders       Order[]
+
+  @@index([role, createdAt])
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName  String
+  phone     String
+  line1     String
+  line2     String?
+  city      String
+  state     String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  products  Product[]
+}
+
+model Product {
+  id                 String         @id @default(cuid())
+  name               String
+  slug               String         @unique
+  description        String
+  /// Integer kobo (₦1 = 100 kobo). Never a float.
+  priceKobo          Int
+  /// Integer kobo. Shown struck-through when greater than priceKobo.
+  compareAtPriceKobo Int?
+  stock              Int            @default(0)
+  isActive           Boolean        @default(true)
+  categoryId         String?
+  // Restrict: a category cannot be deleted while products still use it.
+  category           Category?      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  images             ProductImage[]
+  cartItems          CartItem[]
+  orderItems         OrderItem[]
+
+  @@index([categoryId])
+  @@index([isActive, createdAt])
+  @@index([isActive, priceKobo])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  /// Vercel Blob pathname; used with del() when the image is removed or replaced.
+  pathname  String
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([productId, position])
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  /// Null for guest carts (identified by the httpOnly cartId cookie).
+  userId    String?    @unique
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  items     CartItem[]
+
+  @@index([updatedAt])
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int
+
+  @@unique([cartId, productId])
+  @@index([productId])
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  /// Human-readable, e.g. KMS-260930-7F3K2Q
+  orderNumber       String      @unique
+  userId            String
+  // Restrict: order history must never disappear with a user.
+  user              User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  status            OrderStatus @default(PENDING)
+  subtotalKobo      Int
+  shippingKobo      Int
+  totalKobo         Int
+  paystackReference String      @unique
+  paidAt            DateTime?
+
+  // Shipping address snapshot (copied at order time; later address edits don't change history)
+  shipFullName String
+  shipPhone    String
+  shipLine1    String
+  shipLine2    String?
+  shipCity     String
+  shipState    String
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  items     OrderItem[]
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id            String  @id @default(cuid())
+  orderId       String
+  order         Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId     String
+  // Restrict: products with orders are soft-deactivated, never hard-deleted.
+  product       Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  /// Snapshot of the product name at order time
+  name          String
+  /// Snapshot of the unit price (kobo) at order time
+  unitPriceKobo Int
+  quantity      Int
+
+  @@index([orderId])
+  @@index([productId])
+}
