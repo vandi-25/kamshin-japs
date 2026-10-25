@@ -1,19 +1,20 @@
 "use client";
 
+import Link from "next/link";
 import { useId, useState } from "react";
 
 import {
   DEFAULT_CURRENCIES,
+  convertMinorUnits,
   currencyDecimals,
+  currencyName,
+  formatMajorUnits,
   formatMinorUnits,
   toMinorUnits,
   type CurrencyCode,
+  type ExchangeRates,
   type PaymentRequest,
 } from "@/app/lib/currency";
-
-function currencyName(currency: CurrencyCode, locale: string): string {
-  return new Intl.DisplayNames([locale], { type: "currency" }).of(currency) ?? currency;
-}
 
 type Props = {
   /** Called with the validated amount; perform the actual charge here (e.g. via your provider's server API). */
@@ -24,6 +25,8 @@ type Props = {
   locale?: string;
   /** Optional minimum charge, in major units of any currency (e.g. 1 = $1.00 / ¥1). */
   minAmount?: number;
+  /** When given, shows the amount converted into the rates' base currency. */
+  rates?: ExchangeRates | null;
 };
 
 export default function CurrencyPayment({
@@ -32,6 +35,7 @@ export default function CurrencyPayment({
   defaultCurrency = currencies[0],
   locale = "en-US",
   minAmount = 0,
+  rates,
 }: Props) {
   const id = useId();
   const [currency, setCurrency] = useState(defaultCurrency);
@@ -43,6 +47,11 @@ export default function CurrencyPayment({
   const amountMinor = toMinorUnits(input, currency);
   const belowMinimum = amountMinor !== null && amountMinor < minAmount * 10 ** decimals;
   const valid = amountMinor !== null && amountMinor > 0 && !belowMinimum;
+
+  const converted =
+    valid && rates && currency !== rates.base
+      ? convertMinorUnits(amountMinor!, currency, rates.base, rates)
+      : null;
 
   let hint: string | null = null;
   if (input && amountMinor === null) {
@@ -120,6 +129,11 @@ export default function CurrencyPayment({
           {valid ? formatMinorUnits(amountMinor!, currency, locale) : "—"}
         </span>
       </div>
+      {converted !== null && (
+        <p className="-mt-3 text-right text-sm text-zinc-500 dark:text-zinc-400">
+          ≈ {formatMajorUnits(converted, rates!.base, locale)}
+        </p>
+      )}
 
       <button
         type="submit"
@@ -137,6 +151,15 @@ export default function CurrencyPayment({
         {status === "paid" && <span className="text-green-700 dark:text-green-400">Payment submitted.</span>}
         {status === "error" && <span className="text-red-600 dark:text-red-400">{error}</span>}
       </p>
+
+      <Link
+        href="/currencies"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm text-zinc-600 underline underline-offset-4 hover:text-black dark:text-zinc-400 dark:hover:text-zinc-50"
+      >
+        View currency codes &amp; exchange rates ↗
+      </Link>
     </form>
   );
 }

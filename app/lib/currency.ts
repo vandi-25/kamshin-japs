@@ -36,3 +36,31 @@ export function formatMinorUnits(amountMinor: number, currency: CurrencyCode, lo
   return new Intl.NumberFormat(locale, { style: "currency", currency })
     .format(amountMinor / 10 ** decimals);
 }
+
+export type ExchangeRates = {
+  base: CurrencyCode;
+  /** Units of each currency per 1 unit of `base`. */
+  rates: Record<CurrencyCode, number>;
+  updatedAt: string;
+};
+
+/** Converts a minor-unit amount between currencies; returns major units of `to`, or null if a rate is missing. */
+export function convertMinorUnits(
+  amountMinor: number,
+  from: CurrencyCode,
+  to: CurrencyCode,
+  { rates }: ExchangeRates,
+): number | null {
+  const fromRate = rates[from];
+  const toRate = rates[to];
+  if (!fromRate || !toRate) return null;
+  return (amountMinor / 10 ** currencyDecimals(from) / fromRate) * toRate;
+}
+
+export function formatMajorUnits(amount: number, currency: CurrencyCode, locale: string): string {
+  return new Intl.NumberFormat(locale, { style: "currency", currency }).format(amount);
+}
+
+export function currencyName(currency: CurrencyCode, locale: string): string {
+  return new Intl.DisplayNames([locale], { type: "currency" }).of(currency) ?? currency;
+}
