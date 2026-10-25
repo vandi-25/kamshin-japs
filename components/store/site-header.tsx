@@ -4,6 +4,7 @@ import { Search, ShoppingBag, User } from "lucide-react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { CartCount } from "@/components/cart/cart-count";
 
+import { CurrencySwitcher } from "./currency-switcher";
 import { MobileNav } from "./mobile-nav";
 import { storeNav } from "./nav-links";
 
@@ -37,6 +38,7 @@ export function SiteHeader() {
               </Link>
             ))}
           </nav>
+          <CurrencySwitcher className="mr-1 hidden sm:block" />
           <Link href="/products" className={iconLink} aria-label="Search fragrances">
             <Search className="size-5" />
           </Link>

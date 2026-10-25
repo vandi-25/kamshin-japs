@@ -8,6 +8,7 @@ import { Wordmark } from "@/components/brand/wordmark";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
+import { CurrencySwitcher } from "./currency-switcher";
 import { storeNav } from "./nav-links";
 
 export function MobileNav() {
@@ -44,6 +45,10 @@ export function MobileNav() {
           <Link href="/signup" onClick={() => setOpen(false)} className="hover:text-burgundy">
             Create account
           </Link>
+        </div>
+        <div className="mt-8 flex items-center justify-between text-sm sm:hidden">
+          <span className="text-muted-foreground">Currency</span>
+          <CurrencySwitcher />
         </div>
       </DialogContent>
     </Dialog>

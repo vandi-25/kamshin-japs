@@ -21,6 +21,8 @@ const columns = [
       { href: "/signup", label: "Create account" },
       { href: "/account/orders", label: "My orders" },
       { href: "/cart", label: "Shopping bag" },
+      { href: "/pay", label: "Make a payment" },
+      { href: "/currencies", label: "Currencies & rates" },
     ],
   },
 ];
@@ -53,7 +55,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-ivory/15">
         <p className="mx-auto max-w-7xl px-4 py-6 text-xs text-ivory/60 sm:px-6">
-          © {new Date().getFullYear()} Kamshin. All rights reserved. Prices in Naira (₦).
+          © {new Date().getFullYear()} Kamshin. All rights reserved. Prices charged in Naira (₦).
         </p>
       </div>
     </footer>

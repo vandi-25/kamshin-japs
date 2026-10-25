@@ -15,8 +15,8 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Separator } from "@/components/ui/separator";
 import { BottleArt } from "@/components/store/bottle-art";
+import { useMoney } from "@/components/store/currency-provider";
 import type { Address } from "@/lib/demo/orders";
-import { formatNaira } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { addressSchema, NIGERIAN_STATES, type AddressInput } from "@/lib/validation/address";
 
@@ -38,6 +38,7 @@ export function CheckoutView({
 }) {
   const router = useRouter();
   const { lines, subtotalKobo, itemCount } = useCartLines(products);
+  const { format, formatNaira, isConverted } = useMoney();
   const [selected, setSelected] = useState<string>(addresses.find((a) => a.isDefault)?.id ?? "new");
   const [paying, setPaying] = useState(false);
   const form = useForm<AddressInput>({ resolver: zodResolver(addressSchema), defaultValues: { state: "Lagos" } });
@@ -185,7 +186,7 @@ export function CheckoutView({
                 <p className="font-medium">{product.name}</p>
                 <p className="text-xs text-muted-foreground">{product.sizeMl}ml</p>
               </div>
-              <p className="text-sm">{formatNaira(lineKobo)}</p>
+              <p className="text-sm">{format(lineKobo)}</p>
             </li>
           ))}
         </ul>
@@ -193,17 +194,23 @@ export function CheckoutView({
         <dl className="space-y-3 text-sm">
           <div className="flex justify-between">
             <dt className="text-muted-foreground">Subtotal ({itemCount})</dt>
-            <dd>{formatNaira(subtotalKobo)}</dd>
+            <dd>{format(subtotalKobo)}</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-muted-foreground">Delivery</dt>
-            <dd>{formatNaira(shippingKobo)}</dd>
+            <dd>{format(shippingKobo)}</dd>
           </div>
           <Separator />
           <div className="flex justify-between text-base font-medium">
             <dt>Total</dt>
-            <dd>{formatNaira(subtotalKobo + shippingKobo)}</dd>
+            <dd>{format(subtotalKobo + shippingKobo)}</dd>
           </div>
+          {isConverted && (
+            <div className="flex justify-between text-muted-foreground">
+              <dt>Charged in naira</dt>
+              <dd>{formatNaira(subtotalKobo + shippingKobo)}</dd>
+            </div>
+          )}
         </dl>
         <Button type="submit" size="lg" disabled={paying} className="mt-6 w-full tracking-[0.12em] uppercase">
           <Lock aria-hidden /> {paying ? "Redirecting…" : `Pay ${formatNaira(subtotalKobo + shippingKobo)}`}
@@ -211,6 +218,11 @@ export function CheckoutView({
         <p className="mt-3 text-center text-xs text-muted-foreground">
           Secure payment by Paystack · card, bank transfer or USSD
         </p>
+        {isConverted && (
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Prices in other currencies are estimates. Paystack charges in naira and your bank converts at its own rate.
+          </p>
+        )}
       </aside>
     </form>
   );

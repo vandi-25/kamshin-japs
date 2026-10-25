@@ -23,6 +23,9 @@ Stop at the end of every phase, report back, and wait for "continue" before star
 4. **Validate on the server.** Every mutation (server action or route handler) validates input with Zod and checks
    auth/role on the server. Client-side checks are UX only.
 5. **Money is an integer in kobo.** Never floats for prices. Format as NGN (₦) only at display time.
+   Storefront prices may *also* be shown in the visitor's currency (`lib/currency.ts`, `useMoney()`), chosen from
+   their location (`x-vercel-ip-country`) or the header currency switcher. Those are display-only estimates from
+   daily exchange rates; stored prices, orders and Paystack charges stay in kobo/NGN.
 6. **TypeScript strict. No `any`.** `npm run build` and `npm run lint` must pass before a phase is reported done.
 7. **Keep secrets out of the client.** Only `NEXT_PUBLIC_*` may reach the browser. Keep `.env.example` current.
 8. **Keep running costs minimal** (Vercel + Neon + Upstash + Blob free/hobby tiers).

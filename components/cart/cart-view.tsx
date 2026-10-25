@@ -6,8 +6,8 @@ import { ShoppingBag, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { BottleArt } from "@/components/store/bottle-art";
+import { useMoney } from "@/components/store/currency-provider";
 import { removeFromCart, setCartQuantity } from "@/lib/demo/cart-store";
-import { formatNaira } from "@/lib/money";
 
 import { QuantitySelector } from "./quantity-selector";
 import type { CartProduct } from "./types";
@@ -15,6 +15,7 @@ import { useCartLines } from "./use-cart-lines";
 
 export function CartView({ products, shippingKobo }: { products: CartProduct[]; shippingKobo: number }) {
   const { lines, subtotalKobo, itemCount } = useCartLines(products);
+  const { format, formatNaira, isConverted } = useMoney();
 
   if (lines.length === 0) {
     return (
@@ -49,9 +50,9 @@ export function CartView({ products, shippingKobo }: { products: CartProduct[]; 
                   <p className="mt-1 text-xs tracking-[0.14em] text-gold-text uppercase">
                     {product.concentration} · {product.sizeMl}ml
                   </p>
-                  <p className="mt-1 text-sm text-muted-foreground">{formatNaira(product.priceKobo)} each</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{format(product.priceKobo)} each</p>
                 </div>
-                <p className="font-medium">{formatNaira(lineKobo)}</p>
+                <p className="font-medium">{format(lineKobo)}</p>
               </div>
               <div className="mt-auto flex items-center justify-between pt-4">
                 <QuantitySelector
@@ -78,17 +79,22 @@ export function CartView({ products, shippingKobo }: { products: CartProduct[]; 
         <dl className="mt-6 space-y-3 text-sm">
           <div className="flex justify-between">
             <dt className="text-muted-foreground">Subtotal ({itemCount} {itemCount === 1 ? "item" : "items"})</dt>
-            <dd>{formatNaira(subtotalKobo)}</dd>
+            <dd>{format(subtotalKobo)}</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-muted-foreground">Delivery (flat rate)</dt>
-            <dd>{formatNaira(shippingKobo)}</dd>
+            <dd>{format(shippingKobo)}</dd>
           </div>
           <Separator />
           <div className="flex justify-between text-base font-medium">
             <dt>Total</dt>
-            <dd>{formatNaira(subtotalKobo + shippingKobo)}</dd>
+            <dd>{format(subtotalKobo + shippingKobo)}</dd>
           </div>
+          {isConverted && (
+            <p className="text-xs text-muted-foreground">
+              Approximate. You&apos;ll be charged {formatNaira(subtotalKobo + shippingKobo)} in naira.
+            </p>
+          )}
         </dl>
         <Button asChild size="lg" className="mt-6 w-full tracking-[0.14em] uppercase">
           <Link href="/checkout">Checkout</Link>
